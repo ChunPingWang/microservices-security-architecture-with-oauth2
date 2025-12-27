@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/customer_db
+    username: postgres
+    password: postgres
+
+  jpa:
+    show-sql: true
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  port: 8081
+
+jwt:
+  secret: local-development-secret-key-minimum-32-characters-long
+
+logging:
+  level:
+    com.ecommerce.customer: DEBUG

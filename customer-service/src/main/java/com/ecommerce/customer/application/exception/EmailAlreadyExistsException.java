@@ -1,0 +1,18 @@
+package com.ecommerce.customer.application.exception;
+
+/**
+ * Exception thrown when email already exists.
+ */
+public class EmailAlreadyExistsException extends RuntimeException {
+
+    private final String email;
+
+    public EmailAlreadyExistsException(String email) {
+        super("Email already exists: " + email);
+        this.email = email;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+}
