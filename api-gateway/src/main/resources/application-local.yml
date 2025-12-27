@@ -1,0 +1,66 @@
+# Local development configuration
+spring:
+  cloud:
+    gateway:
+      routes:
+        # Override routes for local development with fixed URIs
+        - id: customer-service-auth
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/auth/**
+          filters:
+            - StripPrefix=1
+
+        - id: customer-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/api/v1/customers/**,/api/customers/**
+          filters:
+            - StripPrefix=1
+
+        - id: product-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/api/v1/products/**,/api/v1/categories/**
+          filters:
+            - StripPrefix=1
+
+        - id: order-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/api/v1/cart/**,/api/v1/orders/**
+          filters:
+            - StripPrefix=1
+
+        - id: payment-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/api/v1/payments/**
+          filters:
+            - StripPrefix=1
+
+        - id: logistics-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/v1/shipments/**
+          filters:
+            - StripPrefix=1
+
+        - id: sales-service
+          uri: http://localhost:8086
+          predicates:
+            - Path=/api/v1/promotions/**,/api/v1/coupons/**
+          filters:
+            - StripPrefix=1
+
+        - id: admin-portal
+          uri: http://localhost:8090
+          predicates:
+            - Path=/api/admin/**
+          filters:
+            - StripPrefix=1
+
+logging:
+  level:
+    root: INFO
+    com.ecommerce.gateway: DEBUG

@@ -1,0 +1,128 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  # Redis configuration for rate limiting
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+
+  cloud:
+    gateway:
+      # Global default filters
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 10
+            redis-rate-limiter.burstCapacity: 20
+            redis-rate-limiter.requestedTokens: 1
+            key-resolver: "#{@userKeyResolver}"
+        - AddResponseHeader=X-Response-Time, %{response_time}ms
+
+      # Global CORS configuration
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://localhost:8080"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - PATCH
+              - OPTIONS
+            allowedHeaders: "*"
+            exposedHeaders:
+              - Authorization
+              - X-Request-Id
+            allowCredentials: true
+            maxAge: 3600
+
+      # Discovery integration
+      discovery:
+        locator:
+          enabled: false  # We define routes manually
+          lower-case-service-id: true
+
+# JWT configuration
+jwt:
+  secret-key: ${JWT_SECRET:your-256-bit-secret-key-here-please-change-in-production-environment}
+  issuer: ecommerce-platform
+  access-token-expiration: 15m
+  refresh-token-expiration: 7d
+  service-token-expiration: 5m
+
+# Resilience4j Circuit Breaker configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        failureRateThreshold: 50
+        eventConsumerBufferSize: 10
+    instances:
+      customer-service-cb:
+        baseConfig: default
+      product-service-cb:
+        baseConfig: default
+      order-service-cb:
+        baseConfig: default
+      payment-service-cb:
+        baseConfig: default
+      logistics-service-cb:
+        baseConfig: default
+      sales-service-cb:
+        baseConfig: default
+      admin-portal-cb:
+        baseConfig: default
+
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3s
+    instances:
+      customer-service-cb:
+        baseConfig: default
+      product-service-cb:
+        baseConfig: default
+      order-service-cb:
+        baseConfig: default
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+      probes:
+        enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    com.ecommerce.gateway: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{requestId}] %logger{36} - %msg%n"
