@@ -1,0 +1,12 @@
+rootProject.name = 'ecommerce-microservices-platform'
+
+include 'shared-kernel'
+include 'security-infrastructure'
+include 'api-gateway'
+include 'customer-service'
+include 'product-service'
+include 'order-service'
+include 'payment-service'
+include 'logistics-service'
+include 'sales-service'
+include 'admin-portal'
